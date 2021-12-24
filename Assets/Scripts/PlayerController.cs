@@ -10,19 +10,34 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private PlayerMovement playerMovement;
 
+    [SerializeField]
+    private PlayerState playerState;
+
+    private float previousYVelo;
 
     void Start()
     {
-        
+
     }
 
     void FixedUpdate()
     {
+
         // Get inputs
         playerInput.OnUpdate();
 
+        playerState.UpdateState();
+
         // Move player
-        playerMovement.Move(playerInput.keyboardInput.x, playerInput.keyboardInput.y, playerInput.shiftHold);
+        previousYVelo = playerState.getPreviousYVelo();
+
+        playerMovement.Move(
+            playerInput.getKeyboardInput().x,
+            playerInput.getKeyboardInput().y,
+            playerInput.getShiftHold(),
+            playerInput.getSpaceToggle(),
+            previousYVelo
+        );
 
     }
 }
