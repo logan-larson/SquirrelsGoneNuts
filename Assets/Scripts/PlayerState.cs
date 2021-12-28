@@ -8,15 +8,21 @@ public class PlayerState : MonoBehaviour
     [SerializeField]
     private PlayerController playerController;
 
+    [SerializeField]
     private bool isGrounded;
+    [SerializeField]
     private float previousYVelo;
+    [SerializeField]
+    private Vector3 previousPosition;
+    [SerializeField]
+    private Quaternion previousRotation;
 
     public void UpdateState()
     {
-        isGrounded = checkGrounded();
+        isGrounded = CheckGrounded();
     }
 
-    private bool checkGrounded()
+    private bool CheckGrounded()
     {
         RaycastHit ground = new RaycastHit();
 
@@ -35,18 +41,39 @@ public class PlayerState : MonoBehaviour
         return false;
     }
 
-    public bool getIsGrounded()
+    public bool GetIsGrounded()
     {
         return isGrounded;
     }
 
-    public float getPreviousYVelo()
+    public float GetPreviousYVelo()
     {
         return previousYVelo;
     }
 
-    public void setPreviousYVelo(float prevYVelo)
+    public void SetPreviousYVelo(float prevYVelo)
     {
         previousYVelo = prevYVelo;
     }
+
+    public Vector3 GetPreviousPosition()
+    {
+        return previousPosition;
+    }
+
+    public void SetPreviousPosition(Vector3 prevPosition)
+    {
+        previousPosition = prevPosition;
+    }
+
+    public Quaternion GetPreviousRotation()
+    {
+        return previousRotation;
+    }
+
+    public void SetPreviousRotation(Quaternion prevRotation)
+    {
+        previousRotation = prevRotation;
+    }
+
 }

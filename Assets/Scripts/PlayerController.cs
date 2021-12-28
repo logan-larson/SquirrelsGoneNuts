@@ -5,13 +5,13 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private PlayerInput playerInput;
-
+    public PlayerInput playerInput;
     [SerializeField]
-    private PlayerMovement playerMovement;
-
+    public PlayerMovement playerMovement;
     [SerializeField]
-    private PlayerState playerState;
+    public PlayerState playerState;
+    [SerializeField]
+    public PlayerOrientation playerOrientation;
 
     private float previousYVelo;
 
@@ -26,18 +26,22 @@ public class PlayerController : MonoBehaviour
         // Get inputs
         playerInput.OnUpdate();
 
+        // Get current player state 
         playerState.UpdateState();
 
-        // Move player
-        previousYVelo = playerState.getPreviousYVelo();
+        // Orient player
+        playerOrientation.Orient(playerState.GetPreviousRotation());
 
+        // Move player
         playerMovement.Move(
             playerInput.getKeyboardInput().x,
             playerInput.getKeyboardInput().y,
             playerInput.getShiftHold(),
             playerInput.getSpaceToggle(),
-            previousYVelo
+            playerState.GetPreviousYVelo(),
+            playerState.GetPreviousPosition()
         );
 
     }
+
 }

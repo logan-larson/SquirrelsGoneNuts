@@ -10,7 +10,7 @@ public class PlayerInput : MonoBehaviour
     private Vector2 keyboardInput;
     private Vector2 mouseInput;
     private bool shiftHold;
-    [SerializeField] private bool spaceToggle;
+    private bool spaceToggle;
 
     public void OnUpdate()
     {
