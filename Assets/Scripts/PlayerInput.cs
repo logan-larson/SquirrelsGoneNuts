@@ -24,22 +24,22 @@ public class PlayerInput : MonoBehaviour
         spaceToggle = Input.GetKeyDown(KeyCode.Space);
     }
 
-    public Vector2 getKeyboardInput()
+    public Vector2 GetKeyboardInput()
     {
         return keyboardInput;
     }
 
-    public Vector2 getMouseInput()
+    public Vector2 GetMouseInput()
     {
         return mouseInput;
     }
 
-    public bool getShiftHold()
+    public bool GetShiftHold()
     {
         return shiftHold;
     }
 
-    public bool getSpaceToggle()
+    public bool GetSpaceToggle()
     {
         return spaceToggle;
     }

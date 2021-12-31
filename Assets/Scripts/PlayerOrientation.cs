@@ -11,6 +11,25 @@ public class PlayerOrientation : MonoBehaviour
     [SerializeField]
     private Quaternion orientation;
 
+    public void MatchRotationToGround(Vector3 position, Quaternion rotation, Vector3 upDirection)
+    {
+
+        //rotation.eulerAngles;
+
+        //Quaternion q;
+
+        //q.SetFromToRotation()
+
+
+        // Don't set transform.rotation, set playerState.rotation
+    }
+
+    public void RotateOnInputs(Quaternion previousRotation)
+    {
+
+        // Don't set transform.rotation, set playerState.rotation
+    }
+
     public void Orient(Quaternion previousRotation)
     {
 
@@ -32,7 +51,7 @@ public class PlayerOrientation : MonoBehaviour
             }
 
 
-            playerController.playerState.SetPreviousRotation(transform.rotation);
+            //playerController.playerState.SetPreviousRotation(transform.rotation);
         }
         else
         {

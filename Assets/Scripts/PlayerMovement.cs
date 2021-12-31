@@ -13,44 +13,75 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float sprintMulitplier = 1.5f;
     [SerializeField] private float jumpMultiplier = 10f;
     [SerializeField] private float gravity = 0.2f;
-    [SerializeField] private bool isGrounded;
 
     private float yVelo = 0f;
+
+
+    public void SetHeightAboveGround()
+    {
+
+        bool isGrounded = playerController.playerState.GetIsGrounded();
+
+        if (isGrounded)
+        {
+
+            Vector3 position = playerController.playerState.GetPosition();
+            Vector3 upDirection = playerController.playerState.GetUpDirection();
+
+            // Set height above ground
+            RaycastHit hit;
+            if (Physics.Raycast(position, -upDirection, out hit))
+            {
+                // Don't set the transform.position, set the playerState.position
+                //Debug.Log("Setting player position");
+                playerController.playerState.SetPosition(hit.point + hit.normal);
+
+                playerController.playerState.SetUpDirection(hit.normal);
+            }
+        }
+        else
+        {
+
+        }
+    }
+
+    public void MoveOnInputs(Vector3 previousPosition, float horizontalInput, float verticalInput)
+    {
+
+        if (playerController.playerState.GetIsGrounded())
+        {
+            Vector3 v = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+
+            v *= movementSpeed * Time.deltaTime;
+
+            playerController.playerState.AddVectorToPosition(v);
+
+        }
+
+    }
 
     // Create a Vector3 and keep adding to it based on conditions
     public void Move(float horizontalInput, float verticalInput, bool isSprinting, bool isJumping, float previousYVelo, Vector3 previousPosition)
     {
 
-        Vector3 v = new Vector3(horizontalInput, 0f, verticalInput).normalized * movementSpeed;
+        Vector3 v = new Vector3();
+        //v += new Vector3(horizontalInput, 0f, verticalInput).normalized * movementSpeed;
 
         // Check grounded
-        isGrounded = playerController.playerState.GetIsGrounded();
+        bool isGrounded = playerController.playerState.GetIsGrounded();
 
         if (isGrounded)
         {
+
             // Move faster when moving forward
             v = verticalInput > 0f ? v * forwardMuliplier : v;
 
             // Add sprint multiplier when applicable
             v = isSprinting ? v * sprintMulitplier : v;
 
-            yVelo = isJumping ? previousYVelo + jumpMultiplier : 0f;
+            //yVelo = isJumping ? previousYVelo + jumpMultiplier : 0f;
 
             playerController.playerState.SetPreviousYVelo(yVelo);
-
-            if (yVelo == 0)
-            {
-                RaycastHit hit;
-                if (Physics.Raycast(transform.position, -transform.up, out hit))
-                {
-                    if (hit.distance < 1.4f)
-                    {
-                        yVelo = 10f;
-                    }
-                }
-            }
-
-            v = v + new Vector3(0f, yVelo, 0f);
 
             transform.Translate(v * Time.deltaTime, Space.Self);
         }
