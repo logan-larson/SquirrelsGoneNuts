@@ -5,27 +5,34 @@ using UnityEngine;
 public class PlayerState : MonoBehaviour
 {
 
+    public float radius = 0.3f;
+    public int numCasts = 8;
+    public float drawDistance = 5f;
+
     [SerializeField]
     private PlayerController playerController;
 
     [SerializeField]
+    private float groundedDistance = 2f;
+
+    [SerializeField]
     private bool isGrounded;
-    [SerializeField]
+
     private float previousYVelo;
-    [SerializeField]
     private Vector3 position;
-    [SerializeField]
     private Quaternion rotation;
-    [SerializeField]
     private Vector3 upDirection;
-    [SerializeField]
     private Vector3 intendedUpDirection;
+
+    private RaycastCone c;
 
     void Awake()
     {
         position = transform.position;
         rotation = transform.rotation;
         upDirection = transform.up;
+
+        c = new RaycastCone(position, -upDirection, radius, numCasts, drawDistance);
 
         isGrounded = CheckGrounded();
     }
@@ -37,10 +44,7 @@ public class PlayerState : MonoBehaviour
         //transform.position = previousPosition;
         transform.SetPositionAndRotation(position, rotation);
 
-        //position = transform.position;
-        //rotation = transform.rotation;
-
-        //upDirection = transform.up;
+        c = new RaycastCone(position, -upDirection, radius, numCasts, drawDistance);
 
         isGrounded = CheckGrounded();
 
@@ -48,6 +52,11 @@ public class PlayerState : MonoBehaviour
 
     private bool CheckGrounded()
     {
+
+        return c.GetClosestDistance() < groundedDistance;
+
+        /*
+
         RaycastHit ground;
 
         // Send raycast downward locally
@@ -71,6 +80,8 @@ public class PlayerState : MonoBehaviour
         }
 
         return false;
+
+        */
     }
 
     public bool GetIsGrounded()
