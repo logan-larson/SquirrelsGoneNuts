@@ -14,12 +14,16 @@ public class PlayerOrientation : MonoBehaviour
     public void MatchRotationToGround(Vector3 position, Quaternion rotation, Vector3 upDirection)
     {
 
-        //rotation.eulerAngles;
+        Quaternion q = new Quaternion();
 
-        //Quaternion q;
+        RaycastCone cone = playerController.playerState.GetHeightCone();
 
-        //q.SetFromToRotation()
 
+        q.SetFromToRotation(upDirection, cone.GetAverageNormal());
+
+
+        this.playerController.playerState.SetUpDirection(cone.GetAverageNormal());
+        this.playerController.playerState.SetRotation(q);
 
         // Don't set transform.rotation, set playerState.rotation
     }

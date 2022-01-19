@@ -25,19 +25,25 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded)
         {
 
-            Vector3 position = playerController.playerState.GetPosition();
-            Vector3 upDirection = playerController.playerState.GetUpDirection();
+            RaycastCone cone = playerController.playerState.GetHeightCone();
 
-            // Set height above ground
+            /*
+            int closestIndex = cone.GetClosestIndex();
+
+            Vector3 closestPoint = cone.GetPoint(closestIndex);
+            Vector3 closestNormal = cone.GetNormal(closestIndex);
+            */
+
             RaycastHit hit;
-            if (Physics.Raycast(position, -upDirection, out hit))
-            {
-                // Don't set the transform.position, set the playerState.position
-                //Debug.Log("Setting player position");
-                playerController.playerState.SetPosition(hit.point + hit.normal);
 
-                playerController.playerState.SetUpDirection(hit.normal);
+            if (Physics.Raycast(playerController.playerState.GetPosition(), -playerController.playerState.GetUpDirection(), out hit)) {
+                playerController.playerState.SetPosition(hit.point + hit.normal);
             }
+
+            //Vector3 position = cone.GetAveragePoint() + cone.GetAverageNormal();
+
+            //playerController.playerState.SetPosition(position);
+
         }
         else
         {
@@ -45,19 +51,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void MoveOnInputs(Vector3 previousPosition, float horizontalInput, float verticalInput)
+    public void MoveOnInputs(float horizontalInput, float verticalInput)
     {
 
-        if (playerController.playerState.GetIsGrounded())
-        {
+        //if (playerController.playerState.GetIsGrounded())
+        //{
             Vector3 v = new Vector3(horizontalInput, 0f, verticalInput).normalized;
 
             v *= movementSpeed * Time.deltaTime;
 
-            playerController.playerState.AddVectorToPosition(v);
-
-        }
-
+        //}
     }
 
     // Create a Vector3 and keep adding to it based on conditions

@@ -19,20 +19,25 @@ public class PlayerState : MonoBehaviour
     private bool isGrounded;
 
     private float previousYVelo;
+    [SerializeField]
     private Vector3 position;
     private Quaternion rotation;
+    [SerializeField]
     private Vector3 upDirection;
+    private Vector3 rightDirection;
     private Vector3 intendedUpDirection;
 
-    private RaycastCone c;
+    // Cone shot directly underneath the player to get height and normal of surface below
+    private RaycastCone heightCone;
 
     void Awake()
     {
         position = transform.position;
         rotation = transform.rotation;
         upDirection = transform.up;
+        rightDirection = transform.right;
 
-        c = new RaycastCone(position, -upDirection, radius, numCasts, drawDistance);
+        heightCone = new RaycastCone(position, -upDirection, rightDirection, radius, numCasts, 2f, drawDistance);
 
         isGrounded = CheckGrounded();
     }
@@ -41,10 +46,10 @@ public class PlayerState : MonoBehaviour
     {
 
         // This will now set the transform.position and transform.rotation based on the 'previous' values
-        //transform.position = previousPosition;
+
         transform.SetPositionAndRotation(position, rotation);
 
-        c = new RaycastCone(position, -upDirection, radius, numCasts, drawDistance);
+        heightCone = new RaycastCone(position, -upDirection, rightDirection, radius, numCasts, 2f, drawDistance);
 
         isGrounded = CheckGrounded();
 
@@ -53,7 +58,8 @@ public class PlayerState : MonoBehaviour
     private bool CheckGrounded()
     {
 
-        return c.GetClosestDistance() < groundedDistance;
+        return true;
+        //return position - .GetAveragePoint < groundedDistance;
 
         /*
 
@@ -142,6 +148,10 @@ public class PlayerState : MonoBehaviour
     public void SetIntendedUpDirection(Vector3 up)
     {
         intendedUpDirection = up;
+    }
+
+    public RaycastCone GetHeightCone() {
+        return this.heightCone;
     }
 
 }

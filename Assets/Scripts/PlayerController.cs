@@ -26,19 +26,26 @@ public class PlayerController : MonoBehaviour
         // Get inputs
         playerInput.OnUpdate();
 
-        // -- NEW PLAN --
-        playerMovement.SetHeightAboveGround();
-
-        playerOrientation.MatchRotationToGround(playerState.GetPosition(), playerState.GetRotation(), playerState.GetUpDirection());
-
         // Move player
-        playerMovement.MoveOnInputs(playerState.GetPosition(), playerInput.GetKeyboardInput().x, playerInput.GetKeyboardInput().y);
+        playerMovement.MoveOnInputs(playerInput.GetKeyboardInput().x, playerInput.GetKeyboardInput().y);
 
         // Rotate based on mouse input
-        playerOrientation.RotateOnInputs(playerState.GetRotation());
+        //playerOrientation.RotateOnInputs(playerState.GetRotation());
+
+
+        // -- NEW PLAN --
+
+
+
+        /*
+        playerOrientation.MatchRotationToGround(playerState.GetPosition(), playerState.GetRotation(), playerState.GetUpDirection());
+
+        playerMovement.SetHeightAboveGround();
+
 
         // Update the  current player state 
         playerState.UpdateState();
+        */
 
     }
 
