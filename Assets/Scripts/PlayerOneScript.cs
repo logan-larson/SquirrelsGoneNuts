@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerOneScript : MonoBehaviour
 {
+    // Scripts
+    public PlayerInput playerInputScript;
+
     // Public Variables
     public float movementSpeed = 5f;
     public float groundedHeight = 1.5f;
@@ -37,6 +40,8 @@ public class PlayerOneScript : MonoBehaviour
 
     void Update() {
         GetInputs();
+
+        playerInputScript.OnUpdate();
     }
 
     void FixedUpdate() {

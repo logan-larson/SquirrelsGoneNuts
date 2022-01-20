@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class FollowPlayer : MonoBehaviour
 {
+    public PlayerInput playerInputScript;
 
     public Transform playerTransform;
     public float sensitivityX = 100f;
@@ -13,7 +14,12 @@ public class FollowPlayer : MonoBehaviour
     public float maxCameraHeight = 3.5f;
     public float cameraDistance = 5f;
 
-    private Vector2 mouseInput;
+    [Header("Lerp Values")]
+    public float rotationLerp = 0.5f;
+    public float positionLerp = 0.5f;
+    public float clippingLerp = 0.8f;
+
+    private Vector2 cameraRotationChange;
     private bool isUnlocked = false, prevIsUnlocked;
 
     private Vector3 currentCameraHeight;
@@ -55,35 +61,22 @@ public class FollowPlayer : MonoBehaviour
 
         SetPreviousValues();
 
-        // Previous partial solution
-        /*
-
-        RaycastHit cameraPosition;
-
-        if (Physics.Raycast(playerTransform.position + playerTransform.up, -playerTransform.forward, out cameraPosition, 5f)) {
-            transform.position = cameraPosition.point;
-        } else {
-            transform.position = playerTransform.position + playerTransform.up + (-playerTransform.forward * 5f);
-        }
-
-        */
     }
 
-    // -- TEMP: Eventually put in input manager script
     void GetInputs() {
         // Camera lock input
-        isUnlocked = Input.GetMouseButton(2);
+        isUnlocked = playerInputScript.GetMiddleMouseHold();
 
         // Mouse inputs
-        mouseInput.x += Input.GetAxis("Mouse X") * sensitivityX * Time.fixedDeltaTime;
-        mouseInput.y += Input.GetAxis("Mouse Y") * sensitivityY * Time.fixedDeltaTime;
+        cameraRotationChange.x += playerInputScript.GetMouseInput().x * sensitivityX * Time.fixedDeltaTime;
+        cameraRotationChange.y += playerInputScript.GetMouseInput().y * sensitivityY * Time.fixedDeltaTime * 3;
     }
 
     // -- Restrict mouse inputs to certain range
     void ConstrainViewAngles() {
         if (!isUnlocked) {
             // Restrict Y axis viewing angle
-            mouseInput.y = Mathf.Clamp(mouseInput.y, -50f, 40f);
+            cameraRotationChange.y = Mathf.Clamp(cameraRotationChange.y, -30f, 80f);
         }
     }
 
@@ -91,13 +84,13 @@ public class FollowPlayer : MonoBehaviour
     void AdjustCameraRotation() {
         if (isUnlocked) {
             // If unlocked, adjust camera rotation based on mouse input
-            transform.rotation = Quaternion.Euler(-mouseInput.y, mouseInput.x, 0)/*, 0.05f)*/;
+            transform.rotation = Quaternion.Euler(-cameraRotationChange.y, cameraRotationChange.x, 0)/*, 0.05f)*/;
         } else {
             // If locked, look towards player and adjust player rotation based on camera
             // -- Get direction of player relative to camera
             Vector3 cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
             // -- Change camera rotation
-            transform.localRotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(-mouseInput.y, cameraDirection.x, 0), 0.2f);
+            transform.localRotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(-cameraRotationChange.y, cameraDirection.x, 0), rotationLerp);
         }
     }
 
@@ -113,7 +106,7 @@ public class FollowPlayer : MonoBehaviour
             transform.position = playerTransform.position + camDistance + camHeight;
         } else {
             // Clamp camera height
-            float height = Mathf.Clamp((cameraHeight - (mouseInput.y / 20f)), minCameraHeight, maxCameraHeight);
+            float height = Mathf.Clamp((cameraHeight - (cameraRotationChange.y / 20f)), minCameraHeight, maxCameraHeight);
             // Get camera height
             currentCameraHeight = playerTransform.up * height;
             // Get camera distance
@@ -121,22 +114,17 @@ public class FollowPlayer : MonoBehaviour
 
 
             // Lerp position relative to player, height and distance
-            transform.position = Vector3.Lerp(prevCameraPosition, playerTransform.position + currentCameraHeight + currentCameraDistance, 0.5f);
-            //transform.position = playerTransform.position + currentCameraHeight + currentCameraDistance;
+            transform.position = Vector3.Lerp(prevCameraPosition, playerTransform.position + currentCameraHeight + currentCameraDistance, positionLerp);
         }
     }
 
     void AdjustCameraPositionForClipping() {
-        Ray cameraRay = new Ray(playerTransform.position, (transform.position - playerTransform.position).normalized);
+        Vector3 cameraRayDirection = (transform.position - playerTransform.position).normalized;
+        Ray cameraRay = new Ray(playerTransform.position, cameraRayDirection);
         RaycastHit hitInfo;
         if (Physics.Raycast(cameraRay, out hitInfo, 5f)) {
-            Debug.DrawRay(cameraRay.origin, cameraRay.direction, Color.red);
-            transform.position = Vector3.Lerp(transform.position, hitInfo.point, 0.8f);
+            transform.position = Vector3.Lerp(transform.position, hitInfo.point - cameraRayDirection, clippingLerp);
         }
-    }
-
-    void OnDrawGizmos() {
-        Gizmos.DrawSphere(playerTransform.position + currentCameraHeight + currentCameraDistance, 0.5f);
     }
 
 }

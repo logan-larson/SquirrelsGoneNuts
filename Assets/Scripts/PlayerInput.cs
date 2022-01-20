@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-    [SerializeField]
-    private PlayerController playerController;
-
     private Vector2 keyboardInput;
     private Vector2 mouseInput;
+    private bool middleMouseHold;
     private bool shiftHold;
     private bool spaceToggle;
 
@@ -17,8 +15,13 @@ public class PlayerInput : MonoBehaviour
         keyboardInput.x = Input.GetAxisRaw("Horizontal");
         keyboardInput.y = Input.GetAxisRaw("Vertical");
 
-        mouseInput.x = Input.GetAxisRaw("Mouse X");
-        mouseInput.y = Input.GetAxisRaw("Mouse Y");
+        //mouseInput.x = Input.GetAxisRaw("Mouse X");
+        //mouseInput.y = Input.GetAxisRaw("Mouse Y");
+        mouseInput.x = Input.GetAxis("Mouse X");
+        mouseInput.y = Input.GetAxis("Mouse Y");
+
+        // Camera freelook on middle mouse button hold
+        middleMouseHold = Input.GetMouseButton(2);
 
         shiftHold = Input.GetKey(KeyCode.LeftShift);
         spaceToggle = Input.GetKeyDown(KeyCode.Space);
@@ -32,6 +35,10 @@ public class PlayerInput : MonoBehaviour
     public Vector2 GetMouseInput()
     {
         return mouseInput;
+    }
+
+    public bool GetMiddleMouseHold() {
+        return middleMouseHold;
     }
 
     public bool GetShiftHold()
