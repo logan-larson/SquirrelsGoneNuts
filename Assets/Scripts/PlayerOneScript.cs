@@ -11,7 +11,7 @@ public class PlayerOneScript : MonoBehaviour
 
     // Input Variables
     Vector2 keyboardInput, mouseInput;
-    bool shiftHold, spaceToggle;
+    bool shiftHold, spaceToggle, isUnlocked;
 
     // State Variables
     [SerializeField]
@@ -27,7 +27,6 @@ public class PlayerOneScript : MonoBehaviour
     float rotateAngle;
 
     void Start() {
-        Cursor.lockState = CursorLockMode.Locked;
         
         velocity = new Vector3();
         lastPosition = transform.position;
@@ -74,9 +73,10 @@ public class PlayerOneScript : MonoBehaviour
 
 
         // Rotate on mouse
-        rotateAngle += (mouseInput.x * sensitivity * Time.deltaTime);
-        transform.RotateAround(transform.position, transform.up, rotateAngle);
-
+        if (!isUnlocked) {
+            rotateAngle += (mouseInput.x * sensitivity * Time.deltaTime);
+            transform.RotateAround(transform.position, transform.up, rotateAngle);
+        }
 
         // Will have to create vector to match surface angle
         // Extrapolate x and y from this vector to get normalized values
@@ -105,6 +105,9 @@ public class PlayerOneScript : MonoBehaviour
 
         mouseInput.x = Input.GetAxisRaw("Mouse X");
         mouseInput.y = Input.GetAxisRaw("Mouse Y");
+
+        // Camera lock input
+        isUnlocked = Input.GetMouseButton(2);
 
         shiftHold = Input.GetKey(KeyCode.LeftShift);
         spaceToggle = Input.GetKeyDown(KeyCode.Space);
