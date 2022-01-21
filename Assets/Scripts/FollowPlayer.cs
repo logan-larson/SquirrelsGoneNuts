@@ -84,7 +84,8 @@ public class FollowPlayer : MonoBehaviour
     void AdjustCameraRotation() {
         if (isUnlocked) {
             // If unlocked, adjust camera rotation based on mouse input
-            transform.rotation = Quaternion.Euler(-cameraRotationChange.y, cameraRotationChange.x, 0)/*, 0.05f)*/;
+            Vector3 cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
+            transform.rotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(cameraDirection.x, cameraDirection.y, cameraDirection.z), rotationLerp)/*, 0.05f)*/;
         } else {
             // If locked, look towards player and adjust player rotation based on camera
             // -- Get direction of player relative to camera
@@ -103,7 +104,7 @@ public class FollowPlayer : MonoBehaviour
             // Get camera distance
             Vector3 camDistance = -transform.forward * cameraDistance;
             // Set position relative to player, height and distance
-            transform.position = playerTransform.position + camDistance + camHeight;
+            //transform.position = playerTransform.position + camDistance + camHeight;
         } else {
             // Clamp camera height
             float height = Mathf.Clamp((cameraHeight - (cameraRotationChange.y / 20f)), minCameraHeight, maxCameraHeight);

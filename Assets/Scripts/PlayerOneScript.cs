@@ -10,7 +10,13 @@ public class PlayerOneScript : MonoBehaviour
     // Public Variables
     public float movementSpeed = 5f;
     public float groundedHeight = 1.5f;
-    public float sensitivity = 100f;
+    public float sensitivity = 300f;
+
+    [Header("TEMP")]
+    public Vector3 fwd;
+    public float rotateAngle;
+    public float prevRotateAngle;
+    public Quaternion newRotation;
 
     // Input Variables
     Vector2 keyboardInput, mouseInput;
@@ -27,15 +33,13 @@ public class PlayerOneScript : MonoBehaviour
     Vector3 lastPosition;
     Quaternion lastRotation;
 
-    float rotateAngle;
 
     void Start() {
-        
         velocity = new Vector3();
         lastPosition = transform.position;
         lastRotation = transform.rotation;
 
-        rotateAngle = 0f;
+        rotateAngle = 180f;
     }
 
     void Update() {
@@ -58,18 +62,32 @@ public class PlayerOneScript : MonoBehaviour
 
 
         Vector3 newPosition = transform.position;
-        Vector3 newUp;
+        Vector3 newUp = transform.up;
 
         // Set up direction to match surface normal
         // Set height above surface
-        if (frontCone.GetClosestDistanceToPoint(transform.position) < backCone.GetClosestDistanceToPoint(transform.position)) {
-            newUp = frontCone.GetAverageNormal();
-        } else {
-            newUp = backCone.GetAverageNormal();
+        // ORIENTATION
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, -transform.up, out hit)) {
+            newUp = hit.normal;
         }
 
-        transform.up = newUp;
+        newRotation = transform.rotation;
 
+        fwd = Vector3.Cross(newUp, transform.right);
+
+        transform.rotation = Quaternion.LookRotation(fwd, newUp);
+
+        // Rotate on mouse
+        if (!isUnlocked) {
+            rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180; // it gets funky with 0
+
+            transform.RotateAround(transform.position, newUp, rotateAngle);
+        } else {
+            transform.RotateAround(transform.position, newUp, 180f);
+        }
+
+        // HEIGHT ABOVE GROUND
         // Send raycast down to set height
         RaycastHit ground;
         if (Physics.Raycast(newPosition, -newUp, out ground)) {
@@ -77,12 +95,7 @@ public class PlayerOneScript : MonoBehaviour
         }
 
 
-        // Rotate on mouse
-        if (!isUnlocked) {
-            rotateAngle += (mouseInput.x * sensitivity * Time.deltaTime);
-            transform.RotateAround(transform.position, transform.up, rotateAngle);
-        }
-
+        // MOVEMENT
         // Will have to create vector to match surface angle
         // Extrapolate x and y from this vector to get normalized values
         Vector3 v = new Vector3(keyboardInput.x, 0f, keyboardInput.y).normalized;
