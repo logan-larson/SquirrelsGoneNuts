@@ -6,6 +6,7 @@ public class PlayerOneScript : MonoBehaviour
 {
     // Scripts
     public PlayerInput playerInputScript;
+    public FollowPlayer followPlayerScript;
 
     // Public Variables
     public float movementSpeed = 5f;
@@ -20,7 +21,7 @@ public class PlayerOneScript : MonoBehaviour
 
     // Input Variables
     Vector2 keyboardInput, mouseInput;
-    bool shiftHold, spaceToggle, isUnlocked;
+    public bool shiftHold, spaceToggle, isUnlocked, prevIsUnlocked;
 
     // State Variables
     [SerializeField]
@@ -39,16 +40,21 @@ public class PlayerOneScript : MonoBehaviour
         lastPosition = transform.position;
         lastRotation = transform.rotation;
 
+        isUnlocked = false;
+        prevIsUnlocked = false;
+
         rotateAngle = 180f;
     }
 
     void Update() {
-        GetInputs();
 
         playerInputScript.OnUpdate();
+
     }
 
     void FixedUpdate() {
+
+        GetInputs();
 
         // Send raycasts from front and back
         Vector3 front = transform.position + (transform.forward / 2);
@@ -80,7 +86,13 @@ public class PlayerOneScript : MonoBehaviour
 
         // Rotate on mouse
         if (!isUnlocked) {
-            rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180; // it gets funky with 0
+            
+            //if (prevIsUnlocked) {
+                //rotateAngle = (followPlayerScript.cameraRotationChange.x - followPlayerScript.startingX) + 180f;
+            //} else {
+                rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180f; // it gets funky with 0
+            //}
+
 
             transform.RotateAround(transform.position, newUp, rotateAngle);
         } else {
@@ -114,6 +126,7 @@ public class PlayerOneScript : MonoBehaviour
 
         transform.position = newPosition;
 
+        SetPreviousValues();
     }
 
     // Input
@@ -129,6 +142,10 @@ public class PlayerOneScript : MonoBehaviour
 
         shiftHold = Input.GetKey(KeyCode.LeftShift);
         spaceToggle = Input.GetKeyDown(KeyCode.Space);
+    }
+
+    void SetPreviousValues() {
+        prevIsUnlocked = isUnlocked;
     }
 
     bool CheckIsGrounded() {

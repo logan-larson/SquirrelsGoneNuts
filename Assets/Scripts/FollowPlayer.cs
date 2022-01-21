@@ -19,8 +19,11 @@ public class FollowPlayer : MonoBehaviour
     public float positionLerp = 0.5f;
     public float clippingLerp = 0.8f;
 
-    private Vector2 cameraRotationChange;
-    private bool isUnlocked = false, prevIsUnlocked;
+    [Header("Camera Stats")]
+    public Vector2 cameraRotationChange;
+    public Vector3 cameraDirection;
+    public bool isUnlocked = false, prevIsUnlocked;
+    public float startingX;
 
     private Vector3 currentCameraHeight;
     private Vector3 currentCameraDistance;
@@ -40,7 +43,7 @@ public class FollowPlayer : MonoBehaviour
 
     // -- Set previous values to be used in next physics step for lerp
     void SetPreviousValues() {
-        prevIsUnlocked = false;
+        prevIsUnlocked = isUnlocked;
         prevCameraRotation = transform.localRotation;
         prevCameraPosition = transform.position;
         prevPlayerRotation = playerTransform.rotation;
@@ -82,16 +85,20 @@ public class FollowPlayer : MonoBehaviour
 
 
     void AdjustCameraRotation() {
+
         if (isUnlocked) {
+            if (!prevIsUnlocked) {
+                startingX = cameraRotationChange.x;
+            }
             // If unlocked, adjust camera rotation based on mouse input
-            Vector3 cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
-            transform.rotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(cameraDirection.x, cameraDirection.y, cameraDirection.z), rotationLerp)/*, 0.05f)*/;
+            cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
+            transform.localRotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(-cameraRotationChange.y, cameraRotationChange.x - startingX, 0f), rotationLerp);
         } else {
             // If locked, look towards player and adjust player rotation based on camera
             // -- Get direction of player relative to camera
-            Vector3 cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
+            cameraDirection = ((playerTransform.position + playerTransform.up) - transform.position).normalized;
             // -- Change camera rotation
-            transform.localRotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(-cameraRotationChange.y, cameraDirection.x, 0), rotationLerp);
+            transform.localRotation = Quaternion.Lerp(prevCameraRotation, Quaternion.Euler(-cameraRotationChange.y, cameraDirection.x, 0f), rotationLerp);
         }
     }
 
@@ -104,7 +111,7 @@ public class FollowPlayer : MonoBehaviour
             // Get camera distance
             Vector3 camDistance = -transform.forward * cameraDistance;
             // Set position relative to player, height and distance
-            //transform.position = playerTransform.position + camDistance + camHeight;
+            transform.position = playerTransform.position + camDistance + camHeight;
         } else {
             // Clamp camera height
             float height = Mathf.Clamp((cameraHeight - (cameraRotationChange.y / 20f)), minCameraHeight, maxCameraHeight);
