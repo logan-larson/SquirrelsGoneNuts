@@ -10,14 +10,14 @@ public class PlayerOneScript : MonoBehaviour
 
     // Public Variables
     public float movementSpeed = 5f;
-    public float groundedHeight = 1.5f;
+    public float sprintMultiplier = 2f;
+    public float groundedHeight = 1.25f;
     public float sensitivity = 300f;
 
     [Header("TEMP")]
     public Vector3 fwd;
     public float rotateAngle;
     public float prevRotateAngle;
-    public Quaternion newRotation;
 
     // Input Variables
     Vector2 keyboardInput, mouseInput;
@@ -31,13 +31,22 @@ public class PlayerOneScript : MonoBehaviour
     float lerpSmoother = 5f;
     Vector3 velocity;
     Vector3 lastVelocity;
-    Vector3 lastPosition;
+    Vector3 prevPosition;
     Quaternion lastRotation;
+
+    [Header("Movement Vectors")]
+    public Vector3 movementVectorX;
+    public Vector3 movementVectorY;
+    public Vector3 movementVectorZ;
+    public Vector3 momentum;
+    public float accelerationX = 1f, accelerationY = 1f, accelerationZ = 1f;
+    public float maxSpeedX = 0.25f, maxSpeedY, maxSpeedZ = 0.5f;
+    public float friction;
 
 
     void Start() {
         velocity = new Vector3();
-        lastPosition = transform.position;
+        prevPosition = transform.position;
         lastRotation = transform.rotation;
 
         isUnlocked = false;
@@ -46,39 +55,35 @@ public class PlayerOneScript : MonoBehaviour
         rotateAngle = 180f;
     }
 
-    void Update() {
+    void FixedUpdate() {
 
         playerInputScript.OnUpdate();
 
-    }
-
-    void FixedUpdate() {
-
         GetInputs();
 
-        // Send raycasts from front and back
-        Vector3 front = transform.position + (transform.forward / 2);
-        Vector3 back = transform.position + (-transform.forward / 2);
-
-        Vector3 frontDirection = ((transform.position - transform.up) - front).normalized;
-        Vector3 backDirection = ((transform.position - transform.up) - back).normalized;
-
-        RaycastCone frontCone = new RaycastCone(front, frontDirection, transform.forward, 0.3f, 8, groundedHeight, groundedHeight);
-        RaycastCone backCone = new RaycastCone(back, backDirection, transform.forward, 0.3f, 8, groundedHeight, groundedHeight);
-
-
+        // Used for movement
         Vector3 newPosition = transform.position;
+        // Used for orientation
         Vector3 newUp = transform.up;
 
-        // Set up direction to match surface normal
-        // Set height above surface
         // ORIENTATION
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, -transform.up, out hit)) {
+        if (Physics.Raycast(newPosition, -newUp, out hit, groundedHeight)) {
+            // Set up direction to match surface normal
             newUp = hit.normal;
-        }
+        } else {
+            // Calculate momentum and set orientation
+            Vector3 currPosition = Move(newPosition);
 
-        newRotation = transform.rotation;
+            momentum = (currPosition - prevPosition).normalized;
+
+            if (Physics.Raycast(newPosition, momentum, out hit, 5f)) {
+                newUp = hit.normal;
+            }
+
+            Debug.DrawLine(newPosition, newPosition + (momentum * 5f), Color.red);
+
+        }
 
         fwd = Vector3.Cross(newUp, transform.right);
 
@@ -86,13 +91,7 @@ public class PlayerOneScript : MonoBehaviour
 
         // Rotate on mouse
         if (!isUnlocked) {
-            
-            //if (prevIsUnlocked) {
-                //rotateAngle = (followPlayerScript.cameraRotationChange.x - followPlayerScript.startingX) + 180f;
-            //} else {
-                rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180f; // it gets funky with 0
-            //}
-
+            rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180f; // it gets funky with 0f
 
             transform.RotateAround(transform.position, newUp, rotateAngle);
         } else {
@@ -102,31 +101,19 @@ public class PlayerOneScript : MonoBehaviour
         // HEIGHT ABOVE GROUND
         // Send raycast down to set height
         RaycastHit ground;
-        if (Physics.Raycast(newPosition, -newUp, out ground)) {
+        if (Physics.Raycast(newPosition, -newUp, out ground, groundedHeight)) {
+            // Set height above surface
             newPosition = ground.point + ground.normal;
         }
 
+        SetIsGrounded(newPosition, newUp);
 
         // MOVEMENT
-        // Will have to create vector to match surface angle
-        // Extrapolate x and y from this vector to get normalized values
-        Vector3 v = new Vector3(keyboardInput.x, 0f, keyboardInput.y).normalized;
+        newPosition = Move(newPosition);
 
-        if (shiftHold) {
-            v *= 2f;
-        }
+        SetPreviousValues(newPosition);
 
-        if (keyboardInput.y != 0) {
-            newPosition += transform.forward * v.z * movementSpeed * Time.fixedDeltaTime * 1.5f;
-        }
-
-        if (keyboardInput.x != 0) {
-            newPosition += transform.right * v.x * movementSpeed * Time.fixedDeltaTime;
-        }
-
-        transform.position = newPosition;
-
-        SetPreviousValues();
+        Debug.DrawLine(newPosition, newPosition + newUp * 2f, Color.green);
     }
 
     // Input
@@ -141,32 +128,66 @@ public class PlayerOneScript : MonoBehaviour
         isUnlocked = Input.GetMouseButton(2);
 
         shiftHold = Input.GetKey(KeyCode.LeftShift);
-        spaceToggle = Input.GetKeyDown(KeyCode.Space);
+        spaceToggle = Input.GetKey(KeyCode.Space);
     }
 
-    void SetPreviousValues() {
+    void SetPreviousValues(Vector3 position) {
         prevIsUnlocked = isUnlocked;
+        prevPosition = position;
     }
 
-    bool CheckIsGrounded() {
-        RaycastCone cone = new RaycastCone(transform.position, -transform.up, transform.right, 0.3f, 6, groundedHeight, 2f);
-
-        return cone.GetClosestDistance() < 1.5f;
+    void SetIsGrounded(Vector3 position, Vector3 up) {
+        RaycastHit hit;
+        if (Physics.Raycast(position, -up, out hit)) {
+            isGrounded = hit.distance < groundedHeight ? true : false;
+        }
     }
 
-    void MatchGround() {
+    Vector3 Move(Vector3 position) {
 
-    }
+        // Gravity
+        if (isGrounded) {
+            // Jumping
+            if (spaceToggle) {
+                float yMultiplier = Mathf.Clamp(followPlayerScript.cameraDirection.y, 0.25f, 5f);
+                movementVectorY += transform.up * yMultiplier;
+                movementVectorZ += transform.forward * followPlayerScript.cameraDirection.z;
+            } else {
+                movementVectorY = new Vector3();
+            }
+        } else {
+            movementVectorY += Vector3.down * accelerationY;
 
-    void MatchWorldGround() {
+            movementVectorY = Vector3.ClampMagnitude(movementVectorY, maxSpeedY);
+        }
 
-    }
 
-    void AddGravity() {
+        float sprintMax = shiftHold ? sprintMultiplier : 1f;
 
-    }
+        // Forward/Backward movement
+        if (keyboardInput.y != 0) {
+            movementVectorZ += transform.forward * accelerationZ * keyboardInput.y;
 
-    void Move() {
+            movementVectorZ = Vector3.ClampMagnitude(movementVectorZ, maxSpeedZ * sprintMax);
+        } else {
+            movementVectorZ *= friction;
+        }
+
+        // Left/Right movement
+        if (keyboardInput.x != 0) {
+            movementVectorX += transform.right * accelerationX * keyboardInput.x;
+
+            movementVectorX = Vector3.ClampMagnitude(movementVectorX, maxSpeedX);
+        } else {
+            movementVectorX *= friction;
+        }
+
+
+        position += movementVectorX + movementVectorY + movementVectorZ;
+        
+        transform.position = position;
+
+        return position;
     }
 
 }
