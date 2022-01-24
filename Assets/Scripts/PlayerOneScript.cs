@@ -13,6 +13,7 @@ public class PlayerOneScript : MonoBehaviour
     public float sprintMultiplier = 2f;
     public float groundedHeight = 1.25f;
     public float sensitivity = 300f;
+    public Transform cameraTransform;
 
     [Header("TEMP")]
     public Vector3 fwd;
@@ -44,7 +45,8 @@ public class PlayerOneScript : MonoBehaviour
     public float friction;
 
 
-    void Start() {
+    void Start()
+    {
         velocity = new Vector3();
         prevPosition = transform.position;
         lastRotation = transform.rotation;
@@ -55,7 +57,8 @@ public class PlayerOneScript : MonoBehaviour
         rotateAngle = 180f;
     }
 
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
 
         playerInputScript.OnUpdate();
 
@@ -68,16 +71,20 @@ public class PlayerOneScript : MonoBehaviour
 
         // ORIENTATION
         RaycastHit hit;
-        if (Physics.Raycast(newPosition, -newUp, out hit, groundedHeight)) {
+        if (Physics.Raycast(newPosition, -newUp, out hit, groundedHeight))
+        {
             // Set up direction to match surface normal
             newUp = hit.normal;
-        } else {
+        }
+        else
+        {
             // Calculate momentum and set orientation
             Vector3 currPosition = Move(newPosition);
 
             momentum = (currPosition - prevPosition).normalized;
 
-            if (Physics.Raycast(newPosition, momentum, out hit, 5f)) {
+            if (Physics.Raycast(newPosition, momentum, out hit, 5f))
+            {
                 newUp = hit.normal;
             }
 
@@ -90,18 +97,22 @@ public class PlayerOneScript : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(fwd, newUp);
 
         // Rotate on mouse
-        if (!isUnlocked) {
+        if (!isUnlocked)
+        {
             rotateAngle = (mouseInput.x * sensitivity * Time.deltaTime) + 180f; // it gets funky with 0f
 
             transform.RotateAround(transform.position, newUp, rotateAngle);
-        } else {
+        }
+        else
+        {
             transform.RotateAround(transform.position, newUp, 180f);
         }
 
         // HEIGHT ABOVE GROUND
         // Send raycast down to set height
         RaycastHit ground;
-        if (Physics.Raycast(newPosition, -newUp, out ground, groundedHeight)) {
+        if (Physics.Raycast(newPosition, -newUp, out ground, groundedHeight))
+        {
             // Set height above surface
             newPosition = ground.point + ground.normal;
         }
@@ -117,7 +128,8 @@ public class PlayerOneScript : MonoBehaviour
     }
 
     // Input
-    void GetInputs() {
+    void GetInputs()
+    {
         keyboardInput.x = Input.GetAxis("Horizontal");
         keyboardInput.y = Input.GetAxis("Vertical");
 
@@ -131,34 +143,60 @@ public class PlayerOneScript : MonoBehaviour
         spaceToggle = Input.GetKey(KeyCode.Space);
     }
 
-    void SetPreviousValues(Vector3 position) {
+    void SetPreviousValues(Vector3 position)
+    {
         prevIsUnlocked = isUnlocked;
         prevPosition = position;
     }
 
-    void SetIsGrounded(Vector3 position, Vector3 up) {
+    void SetIsGrounded(Vector3 position, Vector3 up)
+    {
         RaycastHit hit;
-        if (Physics.Raycast(position, -up, out hit)) {
+        if (Physics.Raycast(position, -up, out hit))
+        {
             isGrounded = hit.distance < groundedHeight ? true : false;
+        }
+        else
+        {
+            isGrounded = false;
         }
     }
 
-    Vector3 Move(Vector3 position) {
+    Vector3 Move(Vector3 position)
+    {
 
         bool isJumping = false;
 
         // Gravity
-        if (isGrounded) {
+        if (isGrounded)
+        {
             // Jumping
-            if (spaceToggle) {
-                float yMultiplier = Mathf.Clamp(followPlayerScript.cameraDirection.y, 0.25f, 1f);
-                movementVectorY += transform.up * yMultiplier;
-                movementVectorZ += transform.forward * (1f - yMultiplier);
-                isJumping = true;
-            } else {
+            if (spaceToggle)
+            {
+                if (isUnlocked)
+                {
+                    // Unlocked collisions are shaky
+                    movementVectorX += followPlayerScript.cameraDirection;
+                    movementVectorY += followPlayerScript.cameraDirection;
+                    movementVectorZ += followPlayerScript.cameraDirection;
+                    isJumping = true;
+                }
+                else
+                {
+                    // Locked mode jumping needs some work
+                    float yMultiplier = Mathf.Clamp(followPlayerScript.cameraDirection.y, 0.25f, 1f);
+                    movementVectorY += transform.up * yMultiplier;
+                    movementVectorZ += transform.forward;
+                    isJumping = true;
+                }
+            }
+            else
+            {
                 movementVectorY = new Vector3();
             }
-        } else {
+        }
+        else
+        {
             movementVectorY += Vector3.down * accelerationY;
 
             movementVectorY = Vector3.ClampMagnitude(movementVectorY, maxSpeedY);
@@ -168,26 +206,32 @@ public class PlayerOneScript : MonoBehaviour
         float sprintMax = shiftHold ? sprintMultiplier : 1f;
 
         // Forward/Backward movement
-        if (keyboardInput.y != 0) {
+        if (keyboardInput.y != 0)
+        {
             movementVectorZ += transform.forward * accelerationZ * keyboardInput.y;
 
             movementVectorZ = Vector3.ClampMagnitude(movementVectorZ, maxSpeedZ * sprintMax);
-        } else if (!isJumping) {
+        }
+        else if (!isJumping)
+        {
             movementVectorZ *= friction;
         }
 
         // Left/Right movement
-        if (keyboardInput.x != 0) {
+        if (keyboardInput.x != 0)
+        {
             movementVectorX += transform.right * accelerationX * keyboardInput.x;
 
             movementVectorX = Vector3.ClampMagnitude(movementVectorX, maxSpeedX);
-        } else if (!isJumping) {
+        }
+        else if (!isJumping)
+        {
             movementVectorX *= friction;
         }
 
 
         position += movementVectorX + movementVectorY + movementVectorZ;
-        
+
         transform.position = position;
 
         return position;
