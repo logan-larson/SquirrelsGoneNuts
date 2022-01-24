@@ -145,13 +145,16 @@ public class PlayerOneScript : MonoBehaviour
 
     Vector3 Move(Vector3 position) {
 
+        bool isJumping = false;
+
         // Gravity
         if (isGrounded) {
             // Jumping
             if (spaceToggle) {
-                float yMultiplier = Mathf.Clamp(followPlayerScript.cameraDirection.y, 0.25f, 5f);
+                float yMultiplier = Mathf.Clamp(followPlayerScript.cameraDirection.y, 0.25f, 1f);
                 movementVectorY += transform.up * yMultiplier;
-                movementVectorZ += transform.forward * followPlayerScript.cameraDirection.z;
+                movementVectorZ += transform.forward * (1f - yMultiplier);
+                isJumping = true;
             } else {
                 movementVectorY = new Vector3();
             }
@@ -169,7 +172,7 @@ public class PlayerOneScript : MonoBehaviour
             movementVectorZ += transform.forward * accelerationZ * keyboardInput.y;
 
             movementVectorZ = Vector3.ClampMagnitude(movementVectorZ, maxSpeedZ * sprintMax);
-        } else {
+        } else if (!isJumping) {
             movementVectorZ *= friction;
         }
 
@@ -178,7 +181,7 @@ public class PlayerOneScript : MonoBehaviour
             movementVectorX += transform.right * accelerationX * keyboardInput.x;
 
             movementVectorX = Vector3.ClampMagnitude(movementVectorX, maxSpeedX);
-        } else {
+        } else if (!isJumping) {
             movementVectorX *= friction;
         }
 
