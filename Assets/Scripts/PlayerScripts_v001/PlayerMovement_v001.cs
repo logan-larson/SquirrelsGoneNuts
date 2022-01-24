@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement_v001 : MonoBehaviour
 {
 
     [SerializeField]
-    PlayerController playerController;
+    PlayerController_v001 playerController;
 
     [SerializeField] private float movementSpeed = 3f;
     [SerializeField] private float forwardMuliplier = 2f;
@@ -36,7 +36,8 @@ public class PlayerMovement : MonoBehaviour
 
             RaycastHit hit;
 
-            if (Physics.Raycast(playerController.playerState.GetPosition(), -playerController.playerState.GetUpDirection(), out hit)) {
+            if (Physics.Raycast(playerController.playerState.GetPosition(), -playerController.playerState.GetUpDirection(), out hit))
+            {
                 playerController.playerState.SetPosition(hit.point + hit.normal);
             }
 
@@ -56,9 +57,9 @@ public class PlayerMovement : MonoBehaviour
 
         //if (playerController.playerState.GetIsGrounded())
         //{
-            Vector3 v = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+        Vector3 v = new Vector3(horizontalInput, 0f, verticalInput).normalized;
 
-            v *= movementSpeed * Time.deltaTime;
+        v *= movementSpeed * Time.deltaTime;
 
         //}
     }

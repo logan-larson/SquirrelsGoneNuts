@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerOrientation : MonoBehaviour
+public class PlayerOrientation_v001 : MonoBehaviour
 {
 
     [SerializeField]
-    public PlayerController playerController;
+    public PlayerController_v001 playerController;
 
     [SerializeField]
     private Quaternion orientation;

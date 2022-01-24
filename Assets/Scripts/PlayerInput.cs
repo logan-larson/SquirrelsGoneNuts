@@ -9,22 +9,22 @@ public class PlayerInput : MonoBehaviour
     private bool middleMouseHold;
     private bool shiftHold;
     private bool spaceToggle;
+    private bool pressR;
 
     public void OnUpdate()
     {
         keyboardInput.x = Input.GetAxisRaw("Horizontal");
         keyboardInput.y = Input.GetAxisRaw("Vertical");
 
-        //mouseInput.x = Input.GetAxisRaw("Mouse X");
-        //mouseInput.y = Input.GetAxisRaw("Mouse Y");
-        mouseInput.x = Input.GetAxis("Mouse X");
-        mouseInput.y = Input.GetAxis("Mouse Y");
+        mouseInput.x = Input.GetAxisRaw("Mouse X");
+        mouseInput.y = Input.GetAxisRaw("Mouse Y");
 
         // Camera freelook on middle mouse button hold
         middleMouseHold = Input.GetMouseButton(2);
 
         shiftHold = Input.GetKey(KeyCode.LeftShift);
-        spaceToggle = Input.GetKeyDown(KeyCode.Space);
+        spaceToggle = Input.GetKey(KeyCode.Space);
+        pressR = Input.GetKey(KeyCode.R);
     }
 
     public Vector2 GetKeyboardInput()
@@ -37,7 +37,8 @@ public class PlayerInput : MonoBehaviour
         return mouseInput;
     }
 
-    public bool GetMiddleMouseHold() {
+    public bool GetMiddleMouseHold()
+    {
         return middleMouseHold;
     }
 
@@ -49,5 +50,10 @@ public class PlayerInput : MonoBehaviour
     public bool GetSpaceToggle()
     {
         return spaceToggle;
+    }
+
+    public bool GetPressR()
+    {
+        return pressR;
     }
 }

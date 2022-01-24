@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerState : MonoBehaviour
+public class PlayerState_v001 : MonoBehaviour
 {
 
     public float radius = 0.3f;
@@ -11,9 +11,6 @@ public class PlayerState : MonoBehaviour
 
     [SerializeField]
     private PlayerController playerController;
-
-    [SerializeField]
-    private float groundedDistance = 2f;
 
     [SerializeField]
     private bool isGrounded;
@@ -150,7 +147,8 @@ public class PlayerState : MonoBehaviour
         intendedUpDirection = up;
     }
 
-    public RaycastCone GetHeightCone() {
+    public RaycastCone GetHeightCone()
+    {
         return this.heightCone;
     }
 

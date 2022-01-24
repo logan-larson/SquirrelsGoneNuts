@@ -2105,6 +2105,7 @@ MonoBehaviour:
   sprintMultiplier: 2
   groundedHeight: 1.5
   sensitivity: 300
+  cameraTransform: {fileID: 0}
   fwd: {x: 0, y: 0, z: 0}
   rotateAngle: 0
   prevRotateAngle: 0
