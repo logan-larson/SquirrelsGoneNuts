@@ -430,6 +430,7 @@ Transform:
   - {fileID: 1131617225}
   - {fileID: 423329805}
   - {fileID: 1963045185}
+  - {fileID: 1133048985}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -955,6 +956,7 @@ GameObject:
   - component: {fileID: 913355208}
   - component: {fileID: 913355207}
   - component: {fileID: 913355206}
+  - component: {fileID: 913355209}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1039,6 +1041,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 913355204}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &913355209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913355204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567afef10959c104c8585e459e582be1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerManagerScript: {fileID: 2091100923}
 --- !u!1 &1131617224
 GameObject:
   m_ObjectHideFlags: 0
@@ -1222,12 +1237,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1133048981}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -1.84, y: -4.08, z: -44.09}
   m_LocalScale: {x: 21.960043, y: 21.960043, z: 21.960043}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_Father: {fileID: 479875282}
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1516453661
 GameObject:
@@ -2080,8 +2095,9 @@ GameObject:
   - component: {fileID: 2091100921}
   - component: {fileID: 2091100920}
   - component: {fileID: 2091100922}
+  - component: {fileID: 2091100923}
   m_Layer: 0
-  m_Name: PlayerOneScript
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2101,28 +2117,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerInputScript: {fileID: 2091100922}
   followPlayerScript: {fileID: 149320493}
-  movementSpeed: 5
+  rotateSensitivity: 300
   sprintMultiplier: 2
-  groundedHeight: 1.5
-  sensitivity: 300
-  cameraTransform: {fileID: 0}
-  fwd: {x: 0, y: 0, z: 0}
-  rotateAngle: 0
-  prevRotateAngle: 0
-  shiftHold: 0
-  spaceToggle: 0
-  isUnlocked: 0
-  prevIsUnlocked: 0
-  isGrounded: 0
-  movementVectorX: {x: 0, y: 0, z: 0}
-  movementVectorY: {x: 0, y: 0, z: 0}
-  movementVectorZ: {x: 0, y: 0, z: 0}
-  momentum: {x: 0, y: 0, z: 0}
+  groundedHeight: 1.25
   accelerationX: 1
-  accelerationY: 0.05
+  accelerationY: 1
   accelerationZ: 1
   maxSpeedX: 0.25
-  maxSpeedY: 1
+  maxSpeedY: 0.5
   maxSpeedZ: 0.5
   friction: 0
 --- !u!4 &2091100921
@@ -2153,3 +2155,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd8b86affe426384ea65b708c15fde26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2091100923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2091100919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcae5e959efa30e469c304fd9fc0a68b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInputScript: {fileID: 2091100922}

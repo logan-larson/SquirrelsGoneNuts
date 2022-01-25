@@ -9,6 +9,7 @@ public class PlayerInput : MonoBehaviour
     private bool middleMouseHold;
     private bool shiftHold;
     private bool spaceToggle;
+    private bool toggleC;
     private bool pressR;
 
     public void OnUpdate()
@@ -25,6 +26,7 @@ public class PlayerInput : MonoBehaviour
         shiftHold = Input.GetKey(KeyCode.LeftShift);
         spaceToggle = Input.GetKey(KeyCode.Space);
         pressR = Input.GetKey(KeyCode.R);
+        toggleC = Input.GetKeyDown(KeyCode.C);
     }
 
     public Vector2 GetKeyboardInput()
@@ -55,5 +57,10 @@ public class PlayerInput : MonoBehaviour
     public bool GetPressR()
     {
         return pressR;
+    }
+
+    public bool GetToggleC()
+    {
+        return toggleC;
     }
 }
